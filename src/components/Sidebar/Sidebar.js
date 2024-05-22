@@ -1,5 +1,5 @@
 import "./sidebar.scss";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -9,9 +9,29 @@ import LayersClearIcon from "@mui/icons-material/LayersClear";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
+import GetAuthServiceAddress from "../../services/api/GetServiceAddress/GetAuthServiceAddress";
+import GetGlobalSessionServiceAddress from "../../services/api/DashboardFunc/GlobalSessionService/GetGlobalSessionServiceAddress";
+import GetGlobalDirectoryServiceAddress from "../../services/api/DashboardFunc/GlobalDirectoryService/GetGlobalDirectoryServiceAddress";
 
 export const Sidebar = (props) => {
   const { t } = useTranslation();
+
+  //Author: Marek, Dashboard state management
+  const minuteInMillis = 1000
+  const [authenticationServiceAddress, setAuthenticationServiceAddress] = useState("-")
+  const [globalSessionServiceAddress, setGlobalSessionServiceAddress] = useState("-")
+  const [globalDirectoryServiceAddress, setGlobalDirectoryServiceAddress] = useState("-")
+  useEffect(() => {
+    const interval = setInterval(() => {
+      GetAuthServiceAddress().then((authServiceAddress) => {
+        setAuthenticationServiceAddress(authServiceAddress)
+      })
+      setGlobalSessionServiceAddress(GetGlobalSessionServiceAddress())
+      setGlobalDirectoryServiceAddress(GetGlobalDirectoryServiceAddress())
+    }, minuteInMillis)
+
+    return () => clearInterval(interval)
+  }, [authenticationServiceAddress, globalSessionServiceAddress, globalDirectoryServiceAddress])
 
   const userPageListItems = (
     <div className="sidebar">
@@ -104,7 +124,7 @@ export const Sidebar = (props) => {
             <div className="card-body">
               <ul>
                 <li>Status: online <div className="status-indicator"></div></li>
-                <li>Address: 127.0.0.1</li>
+                <li>Address: {globalSessionServiceAddress}</li>
               </ul>
             </div>
           </div>
@@ -115,7 +135,7 @@ export const Sidebar = (props) => {
             <div className="card-body">
               <ul>
                 <li>Status: online <div className="status-indicator"></div></li>
-                <li>Address: 127.0.0.1</li>
+                <li>Address: {globalDirectoryServiceAddress}</li>
               </ul>
             </div>
           </div>
@@ -126,7 +146,7 @@ export const Sidebar = (props) => {
             <div className="card-body">
               <ul>
                 <li>Status: online <div className="status-indicator"></div></li>
-                <li>Address: 127.0.0.1</li>
+                <li>Address: {authenticationServiceAddress}</li>
               </ul>
             </div>
           </div>
